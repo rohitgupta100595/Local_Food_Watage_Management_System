@@ -9,7 +9,7 @@ st.set_page_config(layout="wide")
 st.title("Local Food Wastage Management System")
 
 Table_Name = ['Food_Claims']
-Table_Info = ['Claim_ID','Receiver_Name','Receiver_type','Receiver_City','Receiver_Contact',
+Table_Info = ['Claim_ID','Receiver_Name','Receiver_Type','Receiver_City','Receiver_Contact',
               'Provider_Name','Provider_Type','Provider_Address','Provider_City','Provider_Contact',
               'Food_Name','Food_Quantity','Food_Type','Meal_Type','Expiry_Date','Claim_Status','Claim_Datetime','Expiry_Status']
 
@@ -43,8 +43,8 @@ with tab1:
             submit_code = st.form_submit_button('Execute')
 
         # Table of Information
-        with st.expander('Table Information'):
-            t_info = {'Table_Name':Table_Name,'Table_Info':Table_Info}
+        with st.expander('Database Information'):
+            t_info = {'Table Name':Table_Name,'Table Columns':Table_Info}
             st.json(t_info)
     # Result Layouts
     with col2:
@@ -89,8 +89,8 @@ with tab2:
             Meal_Type = st.selectbox('Enter Meal Type',options = dataframe['Meal_Type'].unique())
             Expiry_Date = st.date_input('Enter Expiry Date')
             Claim_Status = st.selectbox('Enter Claim Status',options = dataframe['Claim_Status'].unique())
-            date_value = st.date_input("Select Claim date", datetime.date.today())
-            time_value = st.time_input("Select Claim time", datetime.datetime.now().time())
+            date_value = st.date_input("Select Claim date")
+            time_value = st.time_input("Select Claim time")
             Claim_Datetime = datetime.datetime.combine(date_value, time_value)
             Claim_Datetime_disp = datetime.datetime.combine(date_value, time_value).strftime('%Y-%m-%d %H:%M:%S')
             Expiry_Status = "Expired" if Claim_Datetime.date() > Expiry_Date else "Not Expired"
@@ -123,26 +123,37 @@ with tab2:
     elif option == 'Update':
         st.markdown('#### Update a Record')
         Claim_ID = st.number_input('Enter Claim_ID',min_value=1,step=1)
+        record = None
+        if Claim_ID in dataframe['Claim_ID'].values:
+            record = dataframe.loc[dataframe['Claim_ID'] == Claim_ID].iloc[0]
         col3, col4 = st.columns(2)
         with col3:
-            Receiver_Name = st.text_input('Enter Receiver New Name')
-            Receiver_Type = st.selectbox('Select Receiver New Type', options=dataframe['Receiver_Type'].unique())
-            Receiver_City = st.selectbox('Enter Receiver New City', options=dataframe['Receiver_City'].unique())
-            Receiver_Contact = st.text_input('Enter Receiver New Contact')
-            Provider_Name = st.text_input('Enter Provider New Name')
-            Provider_Type = st.selectbox('Enter Provider New Type', options=dataframe['Provider_Type'].unique())
-            Provider_Address = st.text_input('Enter Provider New Address')
-            Provider_City = st.selectbox('Enter Provider New City', options=dataframe['Provider_City'].unique())
-            Provider_Contact = st.text_input('Enter Provider New Contact')
+            Receiver_Name = st.text_input('Enter Receiver New Name',value=record['Receiver_Name'] if record is not None else "")
+            Receiver_Type = st.selectbox('Select Receiver New Type', options=dataframe['Receiver_Type'].unique(),
+                                         index = list(dataframe['Receiver_Type'].unique()).index(record['Receiver_Type'] if record is not None else 0))
+            Receiver_City = st.selectbox('Enter Receiver New City', options=dataframe['Receiver_City'].unique(),
+                                         index = list(dataframe['Receiver_City'].unique()).index(record['Receiver_City'] if record is not None else 0))
+            Receiver_Contact = st.text_input('Enter Receiver New Contact',value=record['Receiver_Contact'] if record is not None else "")
+            Provider_Name = st.text_input('Enter Provider New Name',value=record['Provider_Name'] if record is not None else "")
+            Provider_Type = st.selectbox('Enter Provider New Type', options=dataframe['Provider_Type'].unique(),
+                                         index = list(dataframe['Provider_Type'].unique()).index(record['Provider_Type'] if record is not None else 0))
+            Provider_Address = st.text_input('Enter Provider New Address',value=record['Provider_Name'] if record is not None else "")
+            Provider_City = st.selectbox('Enter Provider New City', options=dataframe['Provider_City'].unique(),
+                                         index = list(dataframe['Provider_City'].unique()).index(record['Provider_City'] if record is not None else 0))
+            Provider_Contact = st.text_input('Enter Provider New Contact',value=record['Provider_Contact'] if record is not None else "")
         with col4:
-            Food_Name = st.selectbox('Enter New Food Name', options=dataframe['Food_Name'].unique())
-            Food_Quantity = st.number_input('Enter New Food Quantity', min_value=1, step=1)
-            Food_Type = st.selectbox('Enter New Food Type', options=dataframe['Food_Type'].unique())
-            Meal_Type = st.selectbox('Enter New Meal Type', options=dataframe['Meal_Type'].unique())
-            Expiry_Date = st.date_input('Enter New Expiry_Date')
-            Claim_Status = st.selectbox('Enter New Claim Status', options=dataframe['Claim_Status'].unique())
-            date_value = st.date_input("Select New Claim date", datetime.date.today())
-            time_value = st.time_input("Select New Claim time", datetime.datetime.now().time())
+            Food_Name = st.selectbox('Enter New Food Name', options=dataframe['Food_Name'].unique(),
+                                     index = list(dataframe['Food_Name'].unique()).index(record['Food_Name'] if record is not None else 0))
+            Food_Quantity = st.number_input('Enter New Food Quantity', min_value=1, step=1,value=int(record['Food_Quantity']) if record is not None else 0)
+            Food_Type = st.selectbox('Enter New Food Type', options=dataframe['Food_Type'].unique(),
+                                     index = list(dataframe['Food_Type'].unique()).index(record['Food_Type'] if record is not None else 0))
+            Meal_Type = st.selectbox('Enter New Meal Type', options=dataframe['Meal_Type'].unique(),
+                                     index = list(dataframe['Meal_Type'].unique()).index(record['Meal_Type'] if record is not None else 0))
+            Expiry_Date = st.date_input('Enter New Expiry_Date',value=pd.to_datetime(record['Expiry_Date']) if record is not None else None)
+            Claim_Status = st.selectbox('Enter New Claim Status', options=dataframe['Claim_Status'].unique(),
+                                        index = list(dataframe['Claim_Status'].unique()).index(record['Claim_Status'] if record is not None else 0))
+            date_value = st.date_input("Select New Claim date", value=pd.to_datetime(record['Claim_Datetime']).date() if record is not None else datetime.date.today())
+            time_value = st.time_input("Select New Claim time", value=pd.to_datetime(record['Claim_Datetime']).time() if record is not None else datetime.time.now())
             Claim_Datetime = datetime.datetime.combine(date_value, time_value)
             Claim_Datetime_disp = datetime.datetime.combine(date_value, time_value).strftime("%Y-%m-%d %H:%M:%S")
             Expiry_Status = "Expired" if Claim_Datetime.date() > Expiry_Date else "Not Expired"
@@ -202,7 +213,7 @@ with tab3:
                  'Q3':'3. Number of Food Receivers in each City',
                  'Q4':'4. Type of Food Provider contributing the most food',
                  'Q5':'5. Contact information of food providers in a specific city',
-                 'Q6':'6. Receivers claiming the most food',
+                 'Q6':'6. Receiver Type claiming the most food',
                  'Q7':'7. Total Quantity of Food Available from all Providers',
                  'Q8':'8. Top 5 City having highest food listings',
                  'Q9':'9. Commonly Available Food Types',
@@ -213,7 +224,8 @@ with tab3:
                  'Q14':'14. Receivers who Received Expired Food',
                  'Q15':'15. Most Claimed Meal Type',
                  'Q16':'16. Total Quantity of Food Donated by each provider',
-                 'Q17':'17. Total Quantity of Food Received by each receiver',}
+                 'Q17':'17. Total Quantity of Food Received by each receiver',
+                 'Q18':'18. Providers who shipped Expired food but yet not delivered'}
     col1,col2 = st.columns(2)
     with col1:
         selected_query = st.selectbox('Select Your Query', list(Questions.values()))
@@ -325,7 +337,7 @@ with tab3:
                             FROM Food_Claims WHERE Claim_Status = 'Completed'
                             GROUP BY Provider_Name,Provider_Contact
                             ORDER BY SUM(Food_Quantity) DESC;""")
-            else:
+            elif selected_query == Questions['Q17']:
                 query = ("""SELECT 
                                 Receiver_Name,
                                 Receiver_Contact,
@@ -333,6 +345,14 @@ with tab3:
                             FROM Food_Claims WHERE Claim_Status = 'Completed'
                             GROUP BY Receiver_Name,Receiver_Contact
                             ORDER BY SUM(Food_Quantity) DESC;""")
+            else:
+                query = ("""SELECT 
+                                Provider_Name,
+                                Provider_Type,
+                                Provider_Contact,
+                                Food_Quantity
+                            FROM Food_Claims WHERE Expiry_Status = 'Expired' AND Claim_Status = 'Pending'
+                            ORDER BY Food_Quantity DESC;""")
 
     with col2:
         if submit_query:
