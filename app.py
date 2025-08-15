@@ -367,7 +367,7 @@ ORDER BY Food_Quantity DESC;""")
             with st.expander('Results'):
                 query_df = pd.DataFrame(data, columns=columns)
                 st.dataframe(query_df,hide_index=True)
-            if len(num_cols) > 0 and len(cat_cols) > 0:
+            if len(num_cols) > 0 and len(cat_cols) > 0 and query != 'SELECT * FROM Food_Claims;':
                 df_plot = px.bar(
                     query_df_viz,
                     x=cat_cols[0],  # first categorical column
