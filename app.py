@@ -3,6 +3,7 @@ import sqlite3
 import pandas as pd
 import streamlit as st
 import datetime
+import plotly.express as px
 
 
 st.set_page_config(layout="wide")
@@ -232,128 +233,133 @@ with tab3:
         submit_query = st.button('Submit',key = 'form1_submit')
         if submit_query:
             if selected_query == Questions['Q1']:
-                query = 'SELECT * FROM Food_Claims;'
+                query = """SELECT * FROM Food_Claims;"""
             elif selected_query == Questions['Q2']:
                 query = ("""SELECT 
-                                Provider_City,
-                                COUNT(DISTINCT Provider_Contact) AS Number_of_Food_Providers
-                            FROM Food_Claims
-                            GROUP BY Provider_City;""")
+    Provider_City, 
+    COUNT(DISTINCT Provider_Contact) AS Number_of_Food_Providers
+FROM Food_Claims
+GROUP BY Provider_City;""")
             elif selected_query == Questions['Q3']:
                 query = ("""SELECT 
-                                Receiver_City,
-                                COUNT(DISTINCT Receiver_Contact) AS Number_of_Food_Receivers
-                            FROM Food_Claims
-                            GROUP BY Receiver_City;""")
+    Receiver_City,
+    COUNT(DISTINCT Receiver_Contact) AS Number_of_Food_Receivers
+FROM Food_Claims
+GROUP BY Receiver_City;""")
             elif selected_query == Questions['Q4']:
                 query = ("""SELECT 
-                                Provider_Type,
-                                SUM(Food_Quantity) AS Food_Quantity
-                            FROM Food_Claims
-                            GROUP BY Provider_Type;""")
+    Provider_Type,
+    SUM(Food_Quantity) AS Food_Quantity
+FROM Food_Claims
+GROUP BY Provider_Type;""")
             elif selected_query == Questions['Q5']:
                 query = ("""SELECT 
-                                Provider_City,
-                                Provider_Address,
-                                Provider_Contact
-                            FROM Food_Claims
-                            GROUP BY Provider_City;""")
+    Provider_City,
+    Provider_Address,
+    Provider_Contact
+FROM Food_Claims
+GROUP BY Provider_City;""")
             elif selected_query == Questions['Q6']:
                 query = ("""SELECT 
-                                Receiver_Type,
-                                SUM(Food_Quantity) AS Food_Quantity
-                            FROM Food_Claims
-                            GROUP BY Receiver_Type;""")
+    Receiver_Type,
+    SUM(Food_Quantity) AS Food_Quantity
+FROM Food_Claims
+GROUP BY Receiver_Type;""")
             elif selected_query == Questions['Q7']:
                 query = ("""SELECT 
-                                SUM(Food_Quantity) AS Total_Food_Quantity
-                            FROM Food_Claims;""")
+    SUM(Food_Quantity) AS Total_Food_Quantity
+FROM Food_Claims;""")
             elif selected_query == Questions['Q8']:
                 query = ("""SELECT 
-                                Provider_City,
-                                COUNT(Claim_ID) AS Number_of_Listings
-                            FROM Food_Claims
-                            GROUP BY Provider_City
-                            ORDER BY COUNT(Claim_ID) DESC
-                            LIMIT 5;""")
+    Provider_City,
+    COUNT(Claim_ID) AS Number_of_Listings
+FROM Food_Claims
+GROUP BY Provider_City
+ORDER BY COUNT(Claim_ID) DESC
+LIMIT 5;""")
             elif selected_query == Questions['Q9']:
                 query = ("""SELECT 
-                                Food_Name,
-                                SUM(Food_Quantity) AS Food_Qty
-                            FROM Food_Claims
-                            GROUP BY Food_Name
-                            ORDER BY SUM(Food_Quantity) DESC;""")
+    Food_Name,
+    SUM(Food_Quantity) AS Food_Qty
+FROM Food_Claims
+GROUP BY Food_Name
+ORDER BY SUM(Food_Quantity) DESC;""")
             elif selected_query == Questions['Q10']:
                 query = ("""SELECT 
-                                Claim_Status,
-                                COUNT(*) AS Total_Claims,
-                                ROUND((COUNT(*)*100.0/(SELECT COUNT(*) FROM Food_Claims)),2) AS Percentage
-                            FROM Food_Claims
-                            GROUP BY Claim_Status;""")
+    Claim_Status,
+    COUNT(*) AS Total_Claims,
+    ROUND((COUNT(*)*100.0/(SELECT COUNT(*) FROM Food_Claims)),2) AS Percentage
+FROM Food_Claims
+GROUP BY Claim_Status;""")
             elif selected_query == Questions['Q11']:
                 query = ("""SELECT 
-                                Food_Name,
-                                COUNT(Claim_ID) AS Claims
-                            FROM Food_Claims
-                            GROUP BY Food_Name;""")
+    Food_Name,
+    COUNT(Claim_ID) AS Claims
+FROM Food_Claims
+GROUP BY Food_Name;""")
             elif selected_query == Questions['Q12']:
                 query = ("""SELECT
-                                Provider_Name,
-                                Provider_City,
-                                Provider_Contact,
-                                Provider_Type,
-                                COUNT(Claim_ID) AS Successful_Claims
-                            FROM Food_Claims 
-                            WHERE Claim_Status = 'Completed'
-                            GROUP BY Provider_Name,Provider_City,Provider_Contact,Provider_Type
-                            ORDER BY Successful_Claims DESC;""")
+    Provider_Name,
+    Provider_City,
+    Provider_Contact,
+    Provider_Type,
+    COUNT(Claim_ID) AS Successful_Claims
+FROM Food_Claims 
+WHERE Claim_Status = 'Completed'
+GROUP BY Provider_Name,Provider_City,Provider_Contact,Provider_Type
+ORDER BY Successful_Claims DESC;""")
             elif selected_query == Questions['Q13']:
                 query = ("""SELECT 
-                                ROUND(AVG(Food_Quantity)) AS Avg_Food_Quantity_Per_Receiver
-                            FROM Food_Claims;""")
+    ROUND(AVG(Food_Quantity)) AS Avg_Food_Quantity_Per_Receiver
+FROM Food_Claims;""")
             elif selected_query == Questions['Q14']:
                 query = ("""SELECT 
-                                Receiver_Name,
-                                Receiver_Type,
-                                Receiver_Contact,
-                                Food_Name,
-                                Food_Type,
-                                Meal_Type,
-                                Provider_Name,
-                                Provider_Contact
-                            FROM Food_Claims WHERE Expiry_Status = 'Expired' AND Claim_Status = 'Completed';""")
+    Receiver_Name,
+    Receiver_Type,
+    Receiver_Contact,
+    Food_Name,
+    Food_Type,
+    Meal_Type,
+    Provider_Name,
+    Provider_Contact
+FROM Food_Claims WHERE Expiry_Status = 'Expired' AND Claim_Status = 'Completed';""")
             elif selected_query == Questions['Q15']:
                 query = ("""SELECT 
-                                Meal_Type,
-                                COUNT(*) AS Total_Claims,
-                                ROUND((COUNT(*)*100.0/(SELECT COUNT(*) FROM Food_Claims)),2) AS Percentage
-                            FROM Food_Claims
-                            GROUP BY Meal_Type;""")
+    Meal_Type,
+    COUNT(*) AS Total_Claims,
+    ROUND((COUNT(*)*100.0/(SELECT COUNT(*) FROM Food_Claims)),2) AS Percentage
+FROM Food_Claims
+GROUP BY Meal_Type;""")
             elif selected_query == Questions['Q16']:
                 query = ("""SELECT 
-                                Provider_Name,
-                                Provider_Contact,
-                                SUM(Food_Quantity) AS Food_Quantity
-                            FROM Food_Claims WHERE Claim_Status = 'Completed'
-                            GROUP BY Provider_Name,Provider_Contact
-                            ORDER BY SUM(Food_Quantity) DESC;""")
+    Provider_Name,
+    Provider_Contact,
+    SUM(Food_Quantity) AS Food_Quantity
+FROM Food_Claims WHERE Claim_Status = 'Completed'
+GROUP BY Provider_Name,Provider_Contact
+ORDER BY SUM(Food_Quantity) DESC;""")
             elif selected_query == Questions['Q17']:
                 query = ("""SELECT 
-                                Receiver_Name,
-                                Receiver_Contact,
-                                SUM(Food_Quantity) AS Food_Quantity
-                            FROM Food_Claims WHERE Claim_Status = 'Completed'
-                            GROUP BY Receiver_Name,Receiver_Contact
-                            ORDER BY SUM(Food_Quantity) DESC;""")
+    Receiver_Name,
+    Receiver_Contact,
+    SUM(Food_Quantity) AS Food_Quantity
+FROM Food_Claims WHERE Claim_Status = 'Completed'
+GROUP BY Receiver_Name,Receiver_Contact
+ORDER BY SUM(Food_Quantity) DESC;""")
             else:
                 query = ("""SELECT 
-                                Provider_Name,
-                                Provider_Type,
-                                Provider_Contact,
-                                Food_Quantity
-                            FROM Food_Claims WHERE Expiry_Status = 'Expired' AND Claim_Status = 'Pending'
-                            ORDER BY Food_Quantity DESC;""")
-
+    Provider_Name,
+    Provider_Type,
+    Provider_Contact,
+    Food_Quantity
+FROM Food_Claims WHERE Expiry_Status = 'Expired' AND Claim_Status = 'Pending'
+ORDER BY Food_Quantity DESC;""")
+            st.caption('SQL Code:')
+            st.code(query)
+            data_viz,col_viz = sql_exe(query)
+            query_df_viz = pd.DataFrame(data_viz,columns=col_viz)
+            num_cols = query_df_viz.select_dtypes(include='number').columns
+            cat_cols = query_df_viz.select_dtypes(exclude='number').columns
     with col2:
         if submit_query:
             st.info('Query Submitted')
@@ -361,7 +367,18 @@ with tab3:
             with st.expander('Results'):
                 query_df = pd.DataFrame(data, columns=columns)
                 st.dataframe(query_df,hide_index=True)
-
+            if len(num_cols) > 0 and len(cat_cols) > 0:
+                df_plot = px.bar(
+                    query_df_viz,
+                    x=cat_cols[0],  # first categorical column
+                    y=num_cols[0],  # first numeric column
+                    color_discrete_sequence=['red']
+                )
+                df_plot.update_xaxes(showgrid = False)
+                df_plot.update_yaxes(showgrid = False)
+                st.plotly_chart(df_plot)
+            else:
+                st.warning("Data format not suitable for bar chart")
 # Contact Information UI and Logic
 with tab4:
     st.subheader('Contact Information')
