@@ -73,7 +73,7 @@ with tab2:
         st.markdown('#### Create a Record')
         col1,col2 = st.columns(2)
         with col1:
-            Claim_ID = st.number_input('Enter Claim_ID',min_value=1001,step=1)
+            #Claim_ID = st.number_input('Enter Claim_ID',min_value=1001,step=1)
             Receiver_Name = st.text_input('Enter Receiver Name')
             Receiver_Type = st.selectbox('Select Receiver Type',options = dataframe['Receiver_Type'].unique())
             Receiver_City = st.selectbox('Enter Receiver_City',options = dataframe['Receiver_City'].unique())
@@ -86,7 +86,12 @@ with tab2:
             Provider_Contact = st.text_input('Enter Provider Contact')
             Food_Name = st.selectbox('Enter Food Name',options = dataframe['Food_Name'].unique())
             Food_Quantity = st.number_input('Enter Food Quantity',min_value = 1,step = 1)
-            Food_Type = st.selectbox('Enter Food Type',options = dataframe['Food_Type'].unique())
+            if Food_Name in ['Dairy','Soup']:
+                Food_Type = 'Vegetarian'
+            elif Food_Name in ['Bread','Fruits','Vegetables','Rice','Pasta','Salad']:
+                Food_Type = 'Vegan'
+            else:
+                Food_Type = 'Non-Vegetarian'
             Meal_Type = st.selectbox('Enter Meal Type',options = dataframe['Meal_Type'].unique())
             Expiry_Date = st.date_input('Enter Expiry Date')
             Claim_Status = st.selectbox('Enter Claim Status',options = dataframe['Claim_Status'].unique())
@@ -96,20 +101,24 @@ with tab2:
             Claim_Datetime_disp = datetime.datetime.combine(date_value, time_value).strftime('%Y-%m-%d %H:%M:%S')
             Expiry_Status = "Expired" if Claim_Datetime.date() > Expiry_Date else "Not Expired"
         if st.button('Write to Database'):
-            if Claim_ID in dataframe['Claim_ID'].values:
-                st.error('Claim ID already exists')
-            else:
-                try:
-                    cursor.execute("""INSERT INTO Food_Claims(Claim_ID,Receiver_Name,Receiver_Type,Receiver_City,Receiver_Contact,
-                    Provider_Name,Provider_Type,Provider_Address,Provider_City,Provider_Contact,Food_Name,Food_Quantity,Food_Type,
-                    Meal_Type,Expiry_Date,Claim_Status,Claim_Datetime,Expiry_Status)
-                                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(Claim_ID,Receiver_Name,Receiver_Type,Receiver_City,Receiver_Contact,
-                    Provider_Name,Provider_Type,Provider_Address,Provider_City,Provider_Contact,Food_Name,Food_Quantity,Food_Type,
-                    Meal_Type,Expiry_Date,Claim_Status,Claim_Datetime_disp,Expiry_Status))
-                    conn.commit()
-                    st.success('Data Written Successfully')
-                except Exception as e:
-                    st.error(f"Error: {e}")
+            #if Claim_ID in dataframe['Claim_ID'].values:
+            #    st.error('Claim ID already exists')
+            #else:
+            try:
+                cursor.execute("""INSERT INTO Food_Claims(Receiver_Name, Receiver_Type, Receiver_City, Receiver_Contact,
+                                                          Provider_Name, Provider_Type, Provider_Address, Provider_City,
+                                                          Provider_Contact, Food_Name, Food_Quantity, Food_Type,
+                                                          Meal_Type, Expiry_Date, Claim_Status, Claim_Datetime,
+                                                          Expiry_Status)
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                               (Receiver_Name, Receiver_Type, Receiver_City, Receiver_Contact,
+                                Provider_Name, Provider_Type, Provider_Address, Provider_City, Provider_Contact,
+                                Food_Name, Food_Quantity, Food_Type,
+                                Meal_Type, Expiry_Date, Claim_Status, Claim_Datetime_disp, Expiry_Status))
+                conn.commit()
+                st.success('Data Written Successfully')
+            except Exception as e:
+                st.error(f"Error: {e}")
 
     elif option == 'Read':
         st.markdown('#### Read a Record')
@@ -146,8 +155,12 @@ with tab2:
             Food_Name = st.selectbox('Enter New Food Name', options=dataframe['Food_Name'].unique(),
                                      index = list(dataframe['Food_Name'].unique()).index(record['Food_Name'] if record is not None else 0))
             Food_Quantity = st.number_input('Enter New Food Quantity', min_value=1, step=1,value=int(record['Food_Quantity']) if record is not None else 0)
-            Food_Type = st.selectbox('Enter New Food Type', options=dataframe['Food_Type'].unique(),
-                                     index = list(dataframe['Food_Type'].unique()).index(record['Food_Type'] if record is not None else 0))
+            if Food_Name in ['Dairy','Soup']:
+                Food_Type = 'Vegetarian'
+            elif Food_Name in ['Bread','Fruits','Vegetables','Rice','Pasta','Salad']:
+                Food_Type = 'Vegan'
+            else:
+                Food_Type = 'Non-Vegetarian'
             Meal_Type = st.selectbox('Enter New Meal Type', options=dataframe['Meal_Type'].unique(),
                                      index = list(dataframe['Meal_Type'].unique()).index(record['Meal_Type'] if record is not None else 0))
             Expiry_Date = st.date_input('Enter New Expiry_Date',value=pd.to_datetime(record['Expiry_Date']) if record is not None else None)
